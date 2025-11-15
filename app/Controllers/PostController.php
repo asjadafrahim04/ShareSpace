@@ -6,6 +6,7 @@ use App\Core\Session;
 use App\Models\Post;
 
 class PostController extends Controller {
+
     public function showPosts() {
         $user = Session::get('user');
         if (!$user) {
@@ -37,7 +38,6 @@ class PostController extends Controller {
         $content = trim($_POST['content'] ?? '');
         $image = null;
 
-        // Validate content
         if (empty($content)) {
             Session::set('error', 'Post content is required.');
             header('Location: /create-post');
@@ -54,27 +54,73 @@ class PostController extends Controller {
         if (isset($_FILES['image']) && $_FILES['image']['error'] === UPLOAD_ERR_OK) {
             $allowedTypes = ['image/jpeg', 'image/png', 'image/gif'];
             $fileType = $_FILES['image']['type'];
-            
+
             if (in_array($fileType, $allowedTypes)) {
-                $uploadDir = __DIR__ . '/../../public/uploads/'; // CHANGED BACK TO ORIGINAL
+                $uploadDir = __DIR__ . '/../../public/uploads/';
                 if (!is_dir($uploadDir)) {
                     mkdir($uploadDir, 0755, true);
                 }
 
                 $extension = pathinfo($_FILES['image']['name'], PATHINFO_EXTENSION);
-                $filename = uniqid() . '_' . $user['id'] . '.' . $extension;
-                $filepath = $uploadDir . $filename;
+                $filename = uniqid('post_') . '_' . $user['id'] . '.' . $extension;
 
-                if (move_uploaded_file($_FILES['image']['tmp_name'], $filepath)) {
+                if (move_uploaded_file($_FILES['image']['tmp_name'], $uploadDir . $filename)) {
                     $image = $filename;
+                } else {
+                    Session::set('error', 'Failed to upload image.');
+                    header('Location: /create-post');
+                    exit;
                 }
+            } else {
+                Session::set('error', 'Invalid image format. Only JPG, PNG, GIF allowed.');
+                header('Location: /create-post');
+                exit;
             }
         }
 
-        // Create post
         Post::create($user['id'], $content, $image);
-        
         Session::set('success', 'Post created successfully!');
+        header('Location: /posts');
+        exit;
+    }
+
+    public function toggleLike() {
+        $user = Session::get('user');
+        if (!$user || !isset($_POST['post_id'])) {
+            exit;
+        }
+
+        Post::toggleLike((int)$_POST['post_id'], $user['id']);
+        header('Location: /posts');
+        exit;
+    }
+
+    public function addComment() {
+        $user = Session::get('user');
+        if (!$user || !isset($_POST['post_id'], $_POST['comment'])) {
+            exit;
+        }
+
+        $parentId = $_POST['parent_id'] ?? null;
+        Post::addComment(
+            (int)$_POST['post_id'],
+            $user['id'],
+            trim($_POST['comment']),
+            $parentId ? (int)$parentId : null
+        );
+
+        header('Location: /posts');
+        exit;
+    }
+
+    public function deletePost() {
+        $user = Session::get('user');
+        if (!$user || !isset($_POST['post_id'])) {
+            exit;
+        }
+
+        Post::delete((int)$_POST['post_id'], $user['id']);
+        Session::set('success', 'Post deleted successfully!');
         header('Location: /posts');
         exit;
     }

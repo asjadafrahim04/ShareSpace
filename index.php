@@ -47,4 +47,11 @@ $router->post('/register', fn() => $auth->register());
 $router->post('/login', fn() => $auth->login());
 $router->get('/logout', fn() => $auth->logout());
 
+$router->post('/toggle-like', fn() => $postController->toggleLike());
+$router->post('/add-comment', fn() => $postController->addComment());
+$router->post('/delete-post', fn() => $postController->deletePost());
+
+
+
+
 $router->dispatch($_SERVER['REQUEST_URI'] ?? '/', $_SERVER['REQUEST_METHOD'] ?? 'GET');
