@@ -1,6 +1,6 @@
 <?php
 use App\Core\Session;
-$title = 'Dashboard | AuthBoard';
+$title = 'Dashboard | ShareSpace';
 ob_start();
 ?>
 
@@ -20,6 +20,16 @@ ob_start();
 
 <h2>Welcome, <?php echo  htmlspecialchars($user['name']) ?></h2>
 <p>Your email: <?= htmlspecialchars($user['email']) ?></p>
+
+<!-- ADD THIS NAVIGATION SECTION -->
+<div style="margin: 20px 0; display: flex; gap: 12px;">
+    <a href="/posts" style="padding: 10px 20px; background: #2563eb; color: white; text-decoration: none; border-radius: 6px;">
+        📝 View Posts
+    </a>
+    <a href="/create-post" style="padding: 10px 20px; background: #10b981; color: white; text-decoration: none; border-radius: 6px;">
+        + Create Post
+    </a>
+</div>
 
 <div style="margin-top: 24px; padding: 20px; background: #f9fafb; border-radius: 8px; border: 1px solid #e5e7eb;">
     <h3 style="margin-top: 0; font-size: 16px; color: #374151;">📧 Email Testing</h3>

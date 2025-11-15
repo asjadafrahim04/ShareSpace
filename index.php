@@ -23,18 +23,25 @@ use App\Core\Router;
 use App\Core\Session;
 use App\Controllers\AuthController;
 use App\Controllers\DashboardController;
+use App\Controllers\PostController; // ADD THIS LINE
 
 Session::start();
 
 $router = new Router();
 $auth = new AuthController();
 $dash = new DashboardController();
+$postController = new PostController(); // ADD THIS LINE
 
 $router->get('/', fn() => $auth->showLogin());
 $router->get('/login', fn() => $auth->showLogin());
 $router->get('/register', fn() => $auth->showRegister());
 $router->get('/dashboard', fn() => $dash->index());
 $router->get('/test-mail', fn() => $dash->testMail());
+
+// ADD THESE 3 NEW ROUTES FOR POSTS
+$router->get('/posts', fn() => $postController->showPosts());
+$router->get('/create-post', fn() => $postController->showCreatePost());
+$router->post('/create-post', fn() => $postController->createPost());
 
 $router->post('/register', fn() => $auth->register());
 $router->post('/login', fn() => $auth->login());

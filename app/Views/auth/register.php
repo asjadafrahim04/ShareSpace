@@ -1,5 +1,5 @@
 <?php
-$title = 'Register | AuthBoard';
+$title = 'Register | ShareSpace';
 ob_start();
 ?>
 <h2>Register</h2>
