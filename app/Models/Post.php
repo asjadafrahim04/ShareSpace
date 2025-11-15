@@ -85,5 +85,70 @@ class Post {
         $stmt = self::connect()->prepare('INSERT INTO post_comments (post_id, user_id, parent_id, comment) VALUES (?, ?, ?, ?)');
         $stmt->execute([$postId, $userId, $parentId, $comment]);
     }
-}
 
+    // Save Post Features
+    public static function toggleSave(int $postId, int $userId): void {
+        $pdo = self::connect();
+        $exists = $pdo->prepare('SELECT id FROM saved_posts WHERE post_id = ? AND user_id = ?');
+        $exists->execute([$postId, $userId]);
+        if ($exists->fetch()) {
+            $del = $pdo->prepare('DELETE FROM saved_posts WHERE post_id = ? AND user_id = ?');
+            $del->execute([$postId, $userId]);
+        } else {
+            $ins = $pdo->prepare('INSERT INTO saved_posts (post_id, user_id) VALUES (?, ?)');
+            $ins->execute([$postId, $userId]);
+        }
+    }
+
+    public static function userSaved(int $postId, int $userId): bool {
+        $stmt = self::connect()->prepare('SELECT id FROM saved_posts WHERE post_id = ? AND user_id = ?');
+        $stmt->execute([$postId, $userId]);
+        return (bool)$stmt->fetch();
+    }
+
+    public static function getSavedPosts(int $userId): array {
+        $stmt = self::connect()->prepare('
+            SELECT p.*, u.name as user_name 
+            FROM posts p 
+            JOIN users u ON p.user_id = u.id 
+            JOIN saved_posts sp ON p.id = sp.post_id
+            WHERE sp.user_id = ?
+            ORDER BY sp.saved_at DESC
+        ');
+        $stmt->execute([$userId]);
+        return $stmt->fetchAll();
+    }
+
+    // Pin Post Features
+    public static function togglePin(int $postId, int $userId): void {
+        $pdo = self::connect();
+        $exists = $pdo->prepare('SELECT id FROM pinned_posts WHERE post_id = ? AND user_id = ?');
+        $exists->execute([$postId, $userId]);
+        if ($exists->fetch()) {
+            $del = $pdo->prepare('DELETE FROM pinned_posts WHERE post_id = ? AND user_id = ?');
+            $del->execute([$postId, $userId]);
+        } else {
+            $ins = $pdo->prepare('INSERT INTO pinned_posts (post_id, user_id) VALUES (?, ?)');
+            $ins->execute([$postId, $userId]);
+        }
+    }
+
+    public static function userPinned(int $postId, int $userId): bool {
+        $stmt = self::connect()->prepare('SELECT id FROM pinned_posts WHERE post_id = ? AND user_id = ?');
+        $stmt->execute([$postId, $userId]);
+        return (bool)$stmt->fetch();
+    }
+
+    public static function getPinnedPosts(int $userId): array {
+        $stmt = self::connect()->prepare('
+            SELECT p.*, u.name as user_name 
+            FROM posts p 
+            JOIN users u ON p.user_id = u.id 
+            JOIN pinned_posts pp ON p.id = pp.post_id
+            WHERE pp.user_id = ?
+            ORDER BY pp.pinned_at DESC
+        ');
+        $stmt->execute([$userId]);
+        return $stmt->fetchAll();
+    }
+}

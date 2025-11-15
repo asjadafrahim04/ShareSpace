@@ -23,35 +23,43 @@ use App\Core\Router;
 use App\Core\Session;
 use App\Controllers\AuthController;
 use App\Controllers\DashboardController;
-use App\Controllers\PostController; // ADD THIS LINE
+use App\Controllers\PostController;
 
 Session::start();
 
 $router = new Router();
 $auth = new AuthController();
 $dash = new DashboardController();
-$postController = new PostController(); // ADD THIS LINE
+$postController = new PostController();
 
+// Authentication routes
 $router->get('/', fn() => $auth->showLogin());
 $router->get('/login', fn() => $auth->showLogin());
 $router->get('/register', fn() => $auth->showRegister());
-$router->get('/dashboard', fn() => $dash->index());
-$router->get('/test-mail', fn() => $dash->testMail());
-
-// ADD THESE 3 NEW ROUTES FOR POSTS
-$router->get('/posts', fn() => $postController->showPosts());
-$router->get('/create-post', fn() => $postController->showCreatePost());
-$router->post('/create-post', fn() => $postController->createPost());
-
 $router->post('/register', fn() => $auth->register());
 $router->post('/login', fn() => $auth->login());
 $router->get('/logout', fn() => $auth->logout());
 
+// Dashboard routes
+$router->get('/dashboard', fn() => $dash->index());
+$router->get('/test-mail', fn() => $dash->testMail());
+
+// Post routes
+$router->get('/posts', fn() => $postController->showPosts());
+$router->get('/create-post', fn() => $postController->showCreatePost());
+$router->post('/create-post', fn() => $postController->createPost());
+
+// Post interaction routes
 $router->post('/toggle-like', fn() => $postController->toggleLike());
 $router->post('/add-comment', fn() => $postController->addComment());
 $router->post('/delete-post', fn() => $postController->deletePost());
 
+// Save post routes
+$router->post('/toggle-save', fn() => $postController->toggleSave());
+$router->get('/saved-posts', fn() => $postController->showSavedPosts());
 
-
+// Pin post routes  
+$router->post('/toggle-pin', fn() => $postController->togglePin());
+$router->get('/pinned-posts', fn() => $postController->showPinnedPosts());
 
 $router->dispatch($_SERVER['REQUEST_URI'] ?? '/', $_SERVER['REQUEST_METHOD'] ?? 'GET');

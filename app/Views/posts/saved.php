@@ -1,13 +1,8 @@
 <?php
 use App\Core\Session;
 use App\Models\Post;
-$title = 'Posts | ShareSpace';
+$title = 'Saved Posts | ShareSpace';
 ob_start();
-
-// Helper to generate full URL for uploads
-function uploadUrl($filename) {
-    return '/uploads/' . $filename; // Assuming 'public' is your web root
-}
 ?>
 
 <?php if ($msg = Session::get('success')): ?>
@@ -32,11 +27,14 @@ function uploadUrl($filename) {
     <a href="/create-post" style="padding:8px 16px;background:#7c3aed;color:white;text-decoration:none;border-radius:6px;">+ Create Post</a>
 </div>
 
+<h2>📌 Your Saved Posts</h2>
+
 <?php if (empty($posts)): ?>
     <div class="text-center" style="padding: 40px;">
-        <p style="color: #6b7280;">No posts yet. Be the first to create a post!</p>
+        <p style="color: #6b7280;">No saved posts yet. Save posts to see them here!</p>
     </div>
 <?php else: ?>
+    <p style="color: #6b7280; margin-bottom: 16px;">You have <?= count($posts) ?> saved posts</p>
     <div style="display:flex;flex-direction:column;gap:16px;">
         <?php foreach ($posts as $post): 
             $isLiked = Post::userLiked($post['id'], $user['id']);

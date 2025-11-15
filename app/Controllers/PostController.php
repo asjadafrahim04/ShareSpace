@@ -124,4 +124,52 @@ class PostController extends Controller {
         header('Location: /posts');
         exit;
     }
+
+    // Save Post Feature
+    public function toggleSave() {
+        $user = Session::get('user');
+        if (!$user || !isset($_POST['post_id'])) {
+            exit;
+        }
+
+        Post::toggleSave((int)$_POST['post_id'], $user['id']);
+        header('Location: /posts');
+        exit;
+    }
+
+    // Pin Post Feature  
+    public function togglePin() {
+        $user = Session::get('user');
+        if (!$user || !isset($_POST['post_id'])) {
+            exit;
+        }
+
+        Post::togglePin((int)$_POST['post_id'], $user['id']);
+        header('Location: /posts');
+        exit;
+    }
+
+    // View Saved Posts
+    public function showSavedPosts() {
+        $user = Session::get('user');
+        if (!$user) {
+            header('Location: /login');
+            exit;
+        }
+
+        $savedPosts = Post::getSavedPosts($user['id']);
+        $this->view('posts/saved.php', ['user' => $user, 'posts' => $savedPosts]);
+    }
+
+    // View Pinned Posts
+    public function showPinnedPosts() {
+        $user = Session::get('user');
+        if (!$user) {
+            header('Location: /login');
+            exit;
+        }
+
+        $pinnedPosts = Post::getPinnedPosts($user['id']);
+        $this->view('posts/pinned.php', ['user' => $user, 'posts' => $pinnedPosts]);
+    }
 }
